@@ -1,7 +1,8 @@
-fastapi==0.110.1
-uvicorn==0.29.0
-psycopg2-binary==2.9.9
-redis==5.0.3
-confluent-kafka==2.3.0
-pydantic==2.6.4
-pydantic-settings==2.2.1
+fastapi
+uvicorn
+psycopg2-binary
+redis
+pydantic
+pydantic-settings
+yfinance
+websockets

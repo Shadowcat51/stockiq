@@ -14,9 +14,9 @@ export function middleware(request: NextRequest) {
   const hasRefreshToken = request.cookies.has('refreshToken');
 
   if (isProtectedPath && !hasRefreshToken) {
-    // If trying to access a protected route without a token, redirect to login
-    const url = new URL('/login', request.url);
-    url.searchParams.set('callbackUrl', encodeURI(request.url));
+    // If trying to access a protected route without a token, redirect to landing page
+    const url = new URL('/', request.url);
+    url.searchParams.set('redirected', 'true');
     return NextResponse.redirect(url);
   }
 
@@ -26,6 +26,10 @@ export function middleware(request: NextRequest) {
   }
 
   return NextResponse.next();
+}
+
+export function proxy(request: NextRequest) {
+  return middleware(request);
 }
 
 // Ensure the middleware is only called for relevant paths

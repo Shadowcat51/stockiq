@@ -151,7 +151,8 @@ router.post('/login', async (req, res) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
+      path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -202,6 +203,24 @@ router.post('/refresh-token', async (req, res) => {
 
     const newAccessToken = generateAccessToken({ userId, email: userResult.rows[0].email });
 
+    // Extend expiration of the SAME refresh token
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7); // Extended by 7 days from now
+    
+    await pool.query(
+      'UPDATE refresh_tokens SET expires_at = $1 WHERE token = $2',
+      [expiresAt, refreshToken]
+    );
+
+    // Set HTTP-Only Cookie for Refresh Token with updated expiration
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
     return res.status(200).json({
       accessToken: newAccessToken,
       user: { id: userId, email: userResult.rows[0].email, name: userResult.rows[0].name }
@@ -226,7 +245,8 @@ router.post('/logout', async (req, res) => {
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
+      path: '/',
     });
 
     return res.status(200).json({ message: 'Logged out successfully' });
@@ -418,7 +438,8 @@ router.get('/google/callback', async (req, res) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
+      path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

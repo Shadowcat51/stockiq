@@ -3,7 +3,7 @@ export default function TestimonialsSection() {
     {
       name: "Budi Santoso",
       role: "Aspiring Investor",
-      content: "StockVision AI gave me the confidence to trade Indonesian stocks. The virtual simulation feels exactly like the real market, and I didn't have to risk my own money while learning.",
+      content: "StockIQ AI gave me the confidence to trade Indonesian stocks. The virtual simulation feels exactly like the real market, and I didn't have to risk my own money while learning.",
       avatar: "B"
     },
     {

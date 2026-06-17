@@ -24,15 +24,15 @@ Berdasarkan Product Requirements Document (PRD), berikut adalah checklist pembua
 - [x] Sistem Verifikasi Email
 - [x] Manajemen Sesi (JWT Tokens)
 - [x] Flow Lupa Password & Reset
-- [ ] Halaman Pengaturan Akun
+- [-] Halaman Pengaturan Akun
 
 ## 4. Real-Time Stock Charting (Fitur 4.2)
-- [ ] Integrasi Data Provider (Market Data API)
-- [ ] Setup WebSocket untuk Data Real-Time
-- [ ] Pembuatan Chart Interaktif (TradingView / Lightweight Charts)
-- [ ] Fitur Pilihan Timeframe (1m, 5m, 1h, 1D, dll.)
-- [ ] Indikator Teknikal (SMA, EMA, RSI, MACD, dll.)
-- [ ] Drawing Tools untuk Analisa
+- [x] Integrasi Data Provider (Market Data API)
+- [x] Setup WebSocket untuk Data Real-Time
+- [x] Pembuatan Chart Interaktif (TradingView / Lightweight Charts)
+- [x] Fitur Pilihan Timeframe (1m, 5m, 1h, 1D, dll.)
+- [x] Indikator Teknikal (SMA, EMA, RSI, MACD, dll.)
+- [x] Drawing Tools untuk Analisa
 
 ## 5. Buy/Sell Simulation Engine (Fitur 4.3)
 - [ ] Setup Virtual Portfolio (Saldo USD & IDR)
@@ -60,9 +60,9 @@ Berdasarkan Product Requirements Document (PRD), berikut adalah checklist pembua
 - [ ] UI Dashboard Rekomendasi & Sinyal AI (Buy/Hold/Sell)
 
 ## 9. User Dashboard & Portfolio (Fitur 4.7)
-- [ ] Halaman Dashboard Utama User
+- [x] Halaman Dashboard Utama User
 - [ ] Manajemen Watchlist Saham
-- [ ] Widget Market Overview & Top Movers
+- [x] Widget Market Overview & Top Movers
 - [ ] Personalisasi Tema & Tampilan
 
 ---
