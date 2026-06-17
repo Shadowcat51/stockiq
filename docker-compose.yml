@@ -1,0 +1,165 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: stockiq-postgres
+    environment:
+      POSTGRES_USER: stockiq_user
+      POSTGRES_PASSWORD: stockiq_password
+      POSTGRES_DB: stockiq_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - stockiq-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: stockiq-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - stockiq-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: stockiq-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    restart: unless-stopped
+    networks:
+      - stockiq-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: stockiq-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    restart: unless-stopped
+    networks:
+      - stockiq-network
+
+  kafka-init:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: stockiq-kafka-init
+    depends_on:
+      - kafka
+    command: >
+      bash -c "
+      echo 'Waiting for Kafka to be ready...' &&
+      cub kafka-ready -b kafka:29092 1 20 &&
+      echo 'Creating kafka topics...' &&
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 --partitions 1 --replication-factor 1 --topic us-stock-data &&
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 --partitions 1 --replication-factor 1 --topic id-stock-data &&
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 --partitions 1 --replication-factor 1 --topic news-feed-raw &&
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 --partitions 1 --replication-factor 1 --topic alerts-trigger &&
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 --partitions 1 --replication-factor 1 --topic user-events-auth &&
+      echo 'Kafka topics created successfully!'
+      "
+    networks:
+      - stockiq-network
+
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: stockiq-influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: stockiq_admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: stockiq_admin_password
+      DOCKER_INFLUXDB_INIT_ORG: stockiq
+      DOCKER_INFLUXDB_INIT_BUCKET: stock_data
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: stockiq_secret_token
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    restart: unless-stopped
+    networks:
+      - stockiq-network
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+    container_name: stockiq-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    restart: unless-stopped
+    networks:
+      - stockiq-network
+
+  auth-service:
+    build:
+      context: ./backend/auth-service
+    container_name: stockiq-auth-service
+    environment:
+      - PORT=4001
+      - PGUSER=stockiq_user
+      - PGHOST=postgres
+      - PGDATABASE=stockiq_db
+      - PGPASSWORD=stockiq_password
+      - PGPORT=5432
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKER=kafka:29092
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    restart: unless-stopped
+    networks:
+      - stockiq-network
+
+  stock-service:
+    build:
+      context: ./backend/stock-service
+    container_name: stockiq-stock-service
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_USER=stockiq_user
+      - POSTGRES_PASSWORD=stockiq_password
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=stockiq_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:29092
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    restart: unless-stopped
+    networks:
+      - stockiq-network
+
+networks:
+  stockiq-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  influxdb_data:
+  elasticsearch_data:

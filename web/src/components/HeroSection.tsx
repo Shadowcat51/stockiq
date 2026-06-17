@@ -1,4 +1,6 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import Hero3DScene from "./Hero3DScene";
 
 export default function HeroSection() {
   return (
@@ -25,11 +27,15 @@ export default function HeroSection() {
             Real-time stock analysis, AI-driven insights, and risk-free simulation for US and Indonesian markets. Master the market before risking real capital.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-primary-600 hover:bg-primary-500 text-white rounded-xl font-semibold transition-all shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:shadow-[0_0_30px_rgba(99,102,241,0.6)]">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link 
+              href="/login"
+              className="px-8 py-4 bg-primary-600 hover:bg-primary-500 text-white rounded-xl font-semibold text-lg transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] flex items-center gap-2 group cursor-none"
+            >
               Start Virtual Trading
-            </button>
-            <button className="px-8 py-4 glass-panel glass-panel-hover text-white rounded-xl font-semibold transition-all">
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <button className="px-8 py-4 glass-panel glass-panel-hover text-white rounded-xl font-semibold transition-all cursor-none">
               Explore AI Insights
             </button>
           </div>
@@ -39,13 +45,7 @@ export default function HeroSection() {
           <div className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-accent rounded-2xl blur opacity-20 animate-pulse-slow"></div>
           <div className="relative rounded-2xl glass-panel p-2">
             <div className="rounded-xl overflow-hidden bg-background aspect-video relative flex items-center justify-center border border-white/5 shadow-2xl">
-              <Image 
-                src="/chart-mockup.png" 
-                alt="StockVision AI Real-Time Chart Mockup" 
-                fill 
-                className="object-cover"
-                priority
-              />
+              <Hero3DScene />
             </div>
           </div>
         </div>
