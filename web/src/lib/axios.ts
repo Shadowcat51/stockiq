@@ -9,26 +9,28 @@ export const axiosInstance = axios.create({
 });
 
 // Request interceptor to add Access Token
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = useAuthStore.getState().accessToken;
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+const authInterceptor = (config: any) => {
+  const token = useAuthStore.getState().accessToken;
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
   }
-);
+  return config;
+};
 
-// Response interceptor to handle 401s and refresh token
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+export const tradeAxiosInstance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_TRADE_API_URL || 'http://localhost:4002/api',
+  withCredentials: true,
+});
+
+axiosInstance.interceptors.request.use(authInterceptor, (error) => Promise.reject(error));
+tradeAxiosInstance.interceptors.request.use(authInterceptor, (error) => Promise.reject(error));
+
+
+const responseInterceptor = [
+  (response: any) => response,
+  async (error: any) => {
     const originalRequest = error.config;
     
-    // Prevent infinite loop if refresh token itself fails
     if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/refresh-token') {
       originalRequest._retry = true;
       
@@ -38,16 +40,16 @@ axiosInstance.interceptors.response.use(
         const { accessToken, user } = res.data;
         useAuthStore.getState().setAuth(user, accessToken);
         
-        // Retry original request
         originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
-        return axiosInstance(originalRequest);
+        return axios(originalRequest);
       } catch (refreshError) {
-        // Refresh token failed or expired
         useAuthStore.getState().logout();
-        // Redirect logic can be handled in components or layout
         return Promise.reject(refreshError);
       }
     }
     return Promise.reject(error);
   }
-);
+] as const;
+
+axiosInstance.interceptors.response.use(...responseInterceptor);
+tradeAxiosInstance.interceptors.response.use(...responseInterceptor);

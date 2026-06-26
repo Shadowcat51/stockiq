@@ -19,11 +19,19 @@ const MOVER_POOL = [
   { symbol: 'NVDA', name: 'NVIDIA Corp', isId: false },
   { symbol: 'TSLA', name: 'Tesla Inc.', isId: false },
   { symbol: 'COIN', name: 'Coinbase Global', isId: false },
+  { symbol: 'AAPL', name: 'Apple Inc.', isId: false },
+  { symbol: 'MSFT', name: 'Microsoft Corp.', isId: false },
+  { symbol: 'AMZN', name: 'Amazon.com Inc.', isId: false },
+  { symbol: 'AMD', name: 'Advanced Micro Devices', isId: false },
   { symbol: 'AMMN.JK', name: 'Amman Mineral', isId: true },
   { symbol: 'BREN.JK', name: 'Barito Renewables', isId: true },
   { symbol: 'TLKM.JK', name: 'Telkom Indonesia', isId: true },
   { symbol: 'GOTO.JK', name: 'GoTo Gojek Tokopedia', isId: true },
   { symbol: 'PANI.JK', name: 'Pantai Indah Kapuk', isId: true },
+  { symbol: 'BBCA.JK', name: 'Bank Central Asia', isId: true },
+  { symbol: 'BBRI.JK', name: 'Bank Rakyat Indonesia', isId: true },
+  { symbol: 'BMRI.JK', name: 'Bank Mandiri', isId: true },
+  { symbol: 'ADRO.JK', name: 'Adaro Energy', isId: true },
 ];
 
 export function TopMovers() {
@@ -66,10 +74,10 @@ export function TopMovers() {
           const sortedByGain = [...processed].sort((a, b) => b.changeValue - a.changeValue);
           
           // Gainers: top positive changes
-          setGainers(sortedByGain.filter(s => s.changeValue >= 0).slice(0, 4));
+          setGainers(sortedByGain.filter(s => s.changeValue > 0).slice(0, 5));
           
           // Losers: top negative changes (reverse sorted)
-          setLosers([...processed].sort((a, b) => a.changeValue - b.changeValue).filter(s => s.changeValue < 0).slice(0, 4));
+          setLosers([...processed].sort((a, b) => a.changeValue - b.changeValue).filter(s => s.changeValue < 0).slice(0, 5));
         }
       } catch (error) {
         console.error("Failed to fetch top movers:", error);
@@ -117,11 +125,11 @@ export function TopMovers() {
         </div>
       </div>
 
-      <div className="space-y-4 flex-1 overflow-y-auto">
+      <div className="space-y-4 flex-1 overflow-y-auto pr-2 hide-scrollbar">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-full space-y-2">
             <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
-            <p className="text-sm text-gray-500">Memuat data movers...</p>
+            <p className="text-sm text-gray-500">Loading movers data...</p>
           </div>
         ) : displayData.length > 0 ? (
           displayData.map((stock) => (
@@ -130,13 +138,13 @@ export function TopMovers() {
               onClick={() => handleStockClick(stock.symbol)}
               className="flex items-center justify-between p-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group"
             >
-              <div>
-                <h4 className="font-bold text-white group-hover:text-blue-400 transition-colors">
+              <div className="min-w-0 flex-1 mr-4">
+                <h4 className="font-bold text-white group-hover:text-blue-400 transition-colors truncate">
                   {stock.symbol.replace('.JK', '')}
                 </h4>
-                <p className="text-xs text-gray-400 truncate w-32 md:w-48">{stock.name}</p>
+                <p className="text-xs text-gray-400 truncate">{stock.name}</p>
               </div>
-              <div className="text-right flex items-center">
+              <div className="text-right flex items-center shrink-0">
                 <div className="mr-3">
                   <p className="font-medium text-white">{stock.price}</p>
                 </div>
@@ -151,7 +159,7 @@ export function TopMovers() {
           ))
         ) : (
           <div className="text-center text-sm text-gray-500 mt-4">
-            Tidak ada saham {tab === 'gainers' ? 'hijau' : 'merah'} di pool saat ini.
+            No {tab === 'gainers' ? 'green' : 'red'} stocks in the pool currently.
           </div>
         )}
       </div>
