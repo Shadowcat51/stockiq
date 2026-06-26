@@ -101,13 +101,13 @@ export function WatchlistSummary() {
         {watchlist.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full space-y-3 text-center px-4">
             <Star className="w-10 h-10 text-gray-600" />
-            <p className="text-sm text-gray-400">Watchlist kosong.</p>
-            <p className="text-xs text-gray-500">Tandai bintang pada tabel Market Overview untuk menambahkan saham ke Watchlist Anda.</p>
+            <p className="text-sm text-gray-400">Watchlist is empty.</p>
+            <p className="text-xs text-gray-500">Star stocks in the Market Overview table to add them to your Watchlist.</p>
           </div>
         ) : isLoading ? (
           <div className="flex flex-col items-center justify-center h-full space-y-2">
             <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
-            <p className="text-sm text-gray-500">Memuat Watchlist...</p>
+            <p className="text-sm text-gray-500">Loading Watchlist...</p>
           </div>
         ) : (
           watchlistData.map((stock) => (

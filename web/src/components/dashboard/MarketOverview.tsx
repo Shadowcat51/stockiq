@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Loader2 } from 'lucide-react';
 import { Area, AreaChart, ResponsiveContainer, YAxis } from 'recharts';
+import { useRouter } from 'next/navigation';
+import { useSimulationStore } from '@/store/simulationStore';
 
 interface IndexData {
   name: string;
@@ -20,20 +22,48 @@ const DEFAULT_INDICES = [
 ];
 
 export function MarketOverview() {
+  const router = useRouter();
+  const { portfolios, selectedCurrency, isInitialized, fetchPortfolio } = useSimulationStore();
   const [indices, setIndices] = useState<IndexData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Ensure portfolio is loaded
+  useEffect(() => {
+    if (!isInitialized) fetchPortfolio(true);
+  }, [isInitialized, fetchPortfolio]);
+
+  const activePortfolio = portfolios.find(p => p.currency === selectedCurrency);
+  const holdings = activePortfolio?.holdings || [];
 
   useEffect(() => {
     let isMounted = true;
 
     const fetchIndices = async () => {
       try {
-        const symbols = DEFAULT_INDICES.map(i => i.symbol).join(',');
+        let symbolsToFetch: string[] = [];
+        let itemsMap: any[] = [];
+
+        if (holdings.length > 0) {
+          symbolsToFetch = holdings.map(h => h.symbol);
+          itemsMap = holdings.map(h => ({
+            name: h.symbol,
+            symbol: h.symbol,
+            format: selectedCurrency === 'USD' ? 'en-US' : 'id-ID',
+            currency: selectedCurrency
+          }));
+        } else {
+          symbolsToFetch = DEFAULT_INDICES.map(i => i.symbol);
+          itemsMap = DEFAULT_INDICES;
+        }
+
+        const symbols = symbolsToFetch.join(',');
+        if (!symbols) return; // safety check
+        
         const res = await fetch(`/api/market/batch?symbols=${encodeURIComponent(symbols)}`);
         const data = await res.json();
         
         if (isMounted) {
-          const formattedIndices = DEFAULT_INDICES.map(idx => {
+          const formattedIndices = itemsMap.map(idx => {
             const stockData = data[idx.symbol];
             if (!stockData) return null;
 
@@ -58,9 +88,7 @@ export function MarketOverview() {
             };
           }).filter(Boolean) as IndexData[];
           
-          if (formattedIndices.length > 0) {
-            setIndices(formattedIndices);
-          }
+          setIndices(formattedIndices);
         }
       } catch (error) {
         console.error("Failed to fetch market overview:", error);
@@ -76,7 +104,7 @@ export function MarketOverview() {
       isMounted = false;
       clearInterval(interval);
     };
-  }, []);
+  }, [holdings.length, selectedCurrency]); // Re-run if holdings count or currency changes
 
   if (isLoading) {
     return (
@@ -88,9 +116,13 @@ export function MarketOverview() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="flex overflow-x-auto gap-4 pb-2 hide-scrollbar">
       {indices.map((idx) => (
-        <div key={idx.symbol} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors cursor-default">
+        <div 
+          key={idx.symbol} 
+          onClick={() => router.push(`/dashboard/market/${encodeURIComponent(idx.symbol)}`)}
+          className="min-w-[280px] md:min-w-[320px] flex-1 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors cursor-pointer shrink-0"
+        >
           <div className="flex justify-between items-start mb-4">
             <div>
               <p className="text-gray-400 text-sm font-medium">{idx.name}</p>

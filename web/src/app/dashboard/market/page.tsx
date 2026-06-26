@@ -124,7 +124,7 @@ export default function MarketTablePage() {
             <Activity className="w-6 h-6 text-emerald-400" />
             Market Overview
           </h1>
-          <p className="text-gray-400 text-sm mt-1">Pantau pergerakan saham secara real-time untuk pasar Amerika dan Indonesia.</p>
+          <p className="text-gray-400 text-sm mt-1">Monitor real-time stock movements for US and Indonesian markets.</p>
         </div>
 
         {/* Global Search Bar */}
@@ -133,7 +133,7 @@ export default function MarketTablePage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Cari simbol saham global (e.g. AAPL, IDX:GOTO)..."
+              placeholder="Search global stock symbols (e.g. AAPL, IDX:GOTO)..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -149,7 +149,7 @@ export default function MarketTablePage() {
             <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-hidden backdrop-blur-xl">
               <div className="max-h-64 overflow-y-auto p-2 space-y-1">
                 {isLoadingSearch ? (
-                  <div className="p-4 text-center text-gray-500 text-sm">Mencari data saham seluruh dunia...</div>
+                  <div className="p-4 text-center text-gray-500 text-sm">Searching global stock data...</div>
                 ) : searchResults.length > 0 ? (
                   searchResults.map((stock, i) => (
                     <button
@@ -170,7 +170,7 @@ export default function MarketTablePage() {
                   ))
                 ) : (
                   <div className="p-4 text-center text-gray-500 text-sm">
-                    Tidak ditemukan saham dengan kata kunci tersebut.
+                    No stocks found with that keyword.
                   </div>
                 )}
               </div>
@@ -189,7 +189,7 @@ export default function MarketTablePage() {
               : 'text-gray-400 hover:text-white hover:bg-gray-800'
           }`}
         >
-          🇺🇸 Pasar Amerika
+          🇺🇸 US Market
         </button>
         <button
           onClick={() => setActiveTab('ID')}
@@ -199,7 +199,7 @@ export default function MarketTablePage() {
               : 'text-gray-400 hover:text-white hover:bg-gray-800'
           }`}
         >
-          🇮🇩 Pasar Indonesia
+          🇮🇩 Indonesia Market
         </button>
       </div>
 
@@ -210,10 +210,10 @@ export default function MarketTablePage() {
             <thead>
               <tr className="border-b border-gray-800 bg-gray-900/80 text-gray-400 text-sm uppercase tracking-wider">
                 <th className="p-4 font-medium pl-6 w-10"></th>
-                <th className="p-4 font-medium">Saham</th>
-                <th className="p-4 font-medium hidden md:table-cell">Mini Grafik (1D)</th>
-                <th className="p-4 font-medium text-right">Harga</th>
-                <th className="p-4 font-medium text-right pr-6">Perubahan</th>
+                <th className="p-4 font-medium">Stock</th>
+                <th className="p-4 font-medium hidden md:table-cell">Mini Chart (1D)</th>
+                <th className="p-4 font-medium text-right">Price</th>
+                <th className="p-4 font-medium text-right pr-6">Change</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800/50">
@@ -306,7 +306,7 @@ export default function MarketTablePage() {
         {/* Pagination */}
         <div className="mt-auto p-4 border-t border-gray-800 bg-gray-900/30 flex items-center justify-between">
           <div className="text-sm text-gray-400">
-            Menampilkan <span className="text-white font-medium">{currentPage * ITEMS_PER_PAGE + 1}</span> - <span className="text-white font-medium">{Math.min((currentPage + 1) * ITEMS_PER_PAGE, stocks.length)}</span> dari <span className="text-white font-medium">{stocks.length}</span> saham
+            Showing <span className="text-white font-medium">{currentPage * ITEMS_PER_PAGE + 1}</span> - <span className="text-white font-medium">{Math.min((currentPage + 1) * ITEMS_PER_PAGE, stocks.length)}</span> of <span className="text-white font-medium">{stocks.length}</span> stocks
           </div>
           
           <div className="flex items-center gap-2">

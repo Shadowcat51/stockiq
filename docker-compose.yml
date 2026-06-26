@@ -72,6 +72,7 @@ services:
       kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 --partitions 1 --replication-factor 1 --topic news-feed-raw &&
       kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 --partitions 1 --replication-factor 1 --topic alerts-trigger &&
       kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 --partitions 1 --replication-factor 1 --topic user-events-auth &&
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 --partitions 1 --replication-factor 1 --topic trade-orders &&
       echo 'Kafka topics created successfully!'
       "
     networks:
@@ -146,6 +147,32 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - KAFKA_BROKER=kafka:29092
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    restart: unless-stopped
+    networks:
+      - stockiq-network
+
+  trade-service:
+    build:
+      context: ./backend/trade-service
+    container_name: stockiq-trade-service
+    ports:
+      - "4002:4002"
+    environment:
+      - PORT=4002
+      - PGUSER=stockiq_user
+      - PGHOST=postgres
+      - PGDATABASE=stockiq_db
+      - PGPASSWORD=stockiq_password
+      - PGPORT=5432
+      - JWT_SECRET=super_secret_for_development
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKER=kafka:29092
+      - STOCK_SERVICE_URL=http://stock-service:8000
+      - FRONTEND_URL=http://localhost:3000
     depends_on:
       - postgres
       - redis

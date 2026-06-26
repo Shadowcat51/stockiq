@@ -7,7 +7,7 @@ import * as THREE from "three";
 // Helper to create a texture for the coin faces
 function createCoinTexture(text: string, bgColor: string, textColor: string) {
   if (typeof window === "undefined") return new THREE.Texture(); // SSR safety
-  
+
   const canvas = document.createElement("canvas");
   canvas.width = 512;
   canvas.height = 512;
@@ -68,17 +68,17 @@ function CoinGroup({ materials, count = 25 }: { materials: THREE.Material[], cou
 
   useFrame((state, delta) => {
     if (!meshRef.current) return;
-    
+
     data.forEach((d, i) => {
       // Update physics
       d.y -= d.speedY * delta;
       d.rotX += d.rotSpeedX * delta;
       d.rotY += d.rotSpeedY * delta;
-      
+
       // Reset at top when falling past bottom threshold
       if (d.y < -15) {
         d.y = 15;
-        d.x = (Math.random() - 0.5) * 25;
+        d.x = (Math.random() - 0.5) * 20;
         d.speedY = Math.random() * 3 + 1.5;
         d.rotSpeedX = (Math.random() - 0.5) * 3;
         d.rotSpeedY = (Math.random() - 0.5) * 3;
@@ -89,11 +89,11 @@ function CoinGroup({ materials, count = 25 }: { materials: THREE.Material[], cou
       dummy.rotation.set(d.rotX, d.rotY, d.rotZ);
       dummy.scale.set(d.scale, d.scale, d.scale);
       dummy.updateMatrix();
-      
+
       // Update instance matrix
       meshRef.current!.setMatrixAt(i, dummy.matrix);
     });
-    
+
     meshRef.current.instanceMatrix.needsUpdate = true;
   });
 
@@ -119,7 +119,7 @@ function FallingCoinsScene() {
     const texDollar = createCoinTexture("$", gold, darkGold);
     const texOne = createCoinTexture("1", gold, darkGold);
     const texTen = createCoinTexture("10", gold, darkGold);
-    
+
     const matDollarTop = new THREE.MeshStandardMaterial({ map: texDollar, ...commonParams });
     const matOneBottom = new THREE.MeshStandardMaterial({ map: texOne, ...commonParams });
     const matTenBottom = new THREE.MeshStandardMaterial({ map: texTen, ...commonParams });
@@ -147,7 +147,7 @@ function FallingCoinsScene() {
       <ambientLight intensity={0.4} />
       <directionalLight position={[10, 15, 10]} intensity={1.5} />
       <directionalLight position={[-10, -10, -10]} intensity={0.5} color="#3b82f6" />
-      
+
       {/* 4 Variants of Coins */}
       <CoinGroup materials={materials.dollar1} count={25} />
       <CoinGroup materials={materials.dollar10} count={25} />

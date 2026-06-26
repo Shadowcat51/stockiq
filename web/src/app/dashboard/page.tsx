@@ -39,7 +39,7 @@ export default function DashboardPage() {
           <div className="h-[350px]">
             <RecentAlerts />
           </div>
-          <div className="h-[350px]">
+          <div className="h-[400px]">
             <TopMovers />
           </div>
         </div>

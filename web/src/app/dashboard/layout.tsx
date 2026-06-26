@@ -13,7 +13,8 @@ import {
   Bell,
   LogOut,
   Menu,
-  X
+  X,
+  Activity
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
@@ -63,7 +64,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { user, logout, setAuth } = useAuthStore();
-  const { isConnected, latestData } = useMarketStore();
+  const isConnected = useMarketStore(state => state.isConnected);
+  const latestData = useMarketStore(state => state.latestData);
   const router = useRouter();
 
   useEffect(() => {
@@ -98,6 +100,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
     { icon: LineChart, label: 'Market', href: '/dashboard/market' },
     { icon: PieChart, label: 'Portfolio', href: '/dashboard/portfolio' },
+    { icon: Activity, label: 'Backtest', href: '/dashboard/backtest' },
     { icon: BrainCircuit, label: 'AI Insights', href: '/dashboard/ai' },
     { icon: Newspaper, label: 'News', href: '/dashboard/news' },
     { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
@@ -139,7 +142,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 icon={item.icon} 
                 label={item.label} 
                 href={item.href}
-                active={pathname === item.href}
+                active={item.href === '/dashboard' ? pathname === item.href : pathname.startsWith(item.href)}
               />
             ))}
           </nav>

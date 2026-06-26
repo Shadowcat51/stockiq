@@ -6,3 +6,8 @@ pydantic
 pydantic-settings
 yfinance
 websockets
+pandas
+pandas-ta
+
+lxml
+html5lib

@@ -8,12 +8,12 @@ const proxy = httpProxy.createProxyServer({
 });
 
 proxy.on('error', function (err, req, res) {
-  console.log('Proxy error:', err);
-  if (res.writeHead) {
+  console.log('Proxy HTTP error:', err.message);
+  if (res && res.writeHead) {
     res.writeHead(500, {
       'Content-Type': 'text/plain'
     });
-    res.end('Something went wrong. And we are reporting a custom error message.');
+    res.end('Proxy error.');
   }
 });
 
@@ -23,7 +23,14 @@ const server = http.createServer(function(req, res) {
 
 // Listen to the `upgrade` event and proxy the WebSocket requests
 server.on('upgrade', function (req, socket, head) {
-  proxy.ws(req, socket, head);
+  socket.on('error', (err) => console.log('Socket error:', err.message));
+  proxy.ws(req, socket, head, (err) => {
+    console.log('Proxy WS error:', err.message);
+  });
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err.message);
 });
 
 console.log("Starting Node.js Proxy on port 8001...");
